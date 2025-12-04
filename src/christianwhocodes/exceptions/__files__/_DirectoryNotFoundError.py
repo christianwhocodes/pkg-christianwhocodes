@@ -47,24 +47,24 @@ class DirectoryNotFoundError(Exception):
                 import sys
                 from io import StringIO
 
-                from christianwhocodes.colors import Theme, colored_print
+                from christianwhocodes.colors import Text, colored_print
 
                 # Capture colored output to string
                 output = StringIO()
                 old_stdout = sys.stdout
                 sys.stdout = output
 
-                colored_print([("DirectoryError: ", Theme.ERROR), (self.message, None)])
+                colored_print([("DirectoryError: ", Text.ERROR), (self.message, None)])
                 colored_print(
                     [
-                        ("Expected Directory: ", Theme.INFO),
-                        (str(self.expected_dir), Theme.HIGHLIGHT),
+                        ("Expected Directory: ", Text.INFO),
+                        (str(self.expected_dir), Text.HIGHLIGHT),
                     ]
                 )
                 colored_print(
                     [
-                        ("Current Directory: ", Theme.WARNING),
-                        (str(self.current_dir), Theme.HIGHLIGHT),
+                        ("Current Directory: ", Text.WARNING),
+                        (str(self.current_dir), Text.HIGHLIGHT),
                     ]
                 )
 

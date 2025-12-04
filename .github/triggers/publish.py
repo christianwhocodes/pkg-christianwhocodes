@@ -20,7 +20,7 @@ from pathlib import Path
 from typing import Any, NoReturn, Optional
 from urllib.parse import urlparse
 
-from christianwhocodes.colors import Theme, colored_print
+from christianwhocodes.colors import Text, colored_print
 from christianwhocodes.helpers import ExitCode
 
 
@@ -98,7 +98,7 @@ class GitPublisher:
         cmd = ["git", "tag", "-a", tag, "-m", f"Release {version}"]
 
         if dry:
-            colored_print(f"Would run: {' '.join(cmd)}", Theme.WARNING)
+            colored_print(f"Would run: {' '.join(cmd)}", Text.WARNING)
         else:
             subprocess.run(cmd, check=True, capture_output=True, text=True)
 
@@ -108,14 +108,14 @@ class GitPublisher:
         """Push tags to origin."""
         cmd = ["git", "push", "origin", "--tags"]
         if dry:
-            colored_print("Would run: git push origin --tags", Theme.WARNING)
+            colored_print("Would run: git push origin --tags", Text.WARNING)
         else:
             subprocess.run(cmd, check=True, capture_output=True, text=True)
 
 
 def tag_and_push(dry_run: bool = False) -> ExitCode:
     if dry_run:
-        colored_print("DRY RUN MODE - no changes will be made\n", Theme.INFO)
+        colored_print("DRY RUN MODE - no changes will be made\n", Text.INFO)
 
     try:
         cfg = ProjectConfig.from_base_dir()
@@ -130,42 +130,42 @@ def tag_and_push(dry_run: bool = False) -> ExitCode:
         # e.filename can be None; guard for that
         filename = getattr(e, "filename", None)
         if filename:
-            colored_print(f"File not found: {filename}", Theme.ERROR)
+            colored_print(f"File not found: {filename}", Text.ERROR)
         else:
-            colored_print("File not found", Theme.ERROR)
+            colored_print("File not found", Text.ERROR)
         return ExitCode.ERROR
 
     except subprocess.CalledProcessError as e:
         # e.cmd may be list[str] or None; format defensively
         cmd = " ".join(map(str, e.cmd)) if e.cmd else "<cmd>"
-        colored_print(f"Command failed: {cmd}", Theme.ERROR)
-        colored_print(f"Return code: {e.returncode}", Theme.ERROR)
+        colored_print(f"Command failed: {cmd}", Text.ERROR)
+        colored_print(f"Return code: {e.returncode}", Text.ERROR)
         if getattr(e, "stdout", None):
-            colored_print(f"stdout: {e.stdout}", Theme.ERROR)
+            colored_print(f"stdout: {e.stdout}", Text.ERROR)
         if getattr(e, "stderr", None):
-            colored_print(f"stderr: {e.stderr}", Theme.ERROR)
+            colored_print(f"stderr: {e.stderr}", Text.ERROR)
         return ExitCode.ERROR
 
     except tomllib.TOMLDecodeError as e:
-        colored_print(f"Failed to parse pyproject.toml: {str(e)}", Theme.ERROR)
+        colored_print(f"Failed to parse pyproject.toml: {str(e)}", Text.ERROR)
         return ExitCode.ERROR
 
     except ValueError as e:
-        colored_print(f"Configuration error: {str(e)}", Theme.ERROR)
+        colored_print(f"Configuration error: {str(e)}", Text.ERROR)
         return ExitCode.ERROR
 
     except Exception as e:
-        colored_print(f"Unexpected error: {str(e)}", Theme.ERROR)
+        colored_print(f"Unexpected error: {str(e)}", Text.ERROR)
         return ExitCode.ERROR
 
     else:
         if dry_run:
-            colored_print(f"Tag {tag} would be pushed successfully.", Theme.SUCCESS)
-            colored_print("GitHub Actions workflow would trigger.", Theme.SUCCESS)
+            colored_print(f"Tag {tag} would be pushed successfully.", Text.SUCCESS)
+            colored_print("GitHub Actions workflow would trigger.", Text.SUCCESS)
         else:
-            colored_print(f"Tag {tag} pushed successfully!", Theme.SUCCESS)
+            colored_print(f"Tag {tag} pushed successfully!", Text.SUCCESS)
             colored_print(
-                [("Monitor workflow: ", Theme.INFO), (actions_url, Theme.HIGHLIGHT)]
+                [("Monitor workflow: ", Text.INFO), (actions_url, Text.HIGHLIGHT)]
             )
 
         return ExitCode.SUCCESS
