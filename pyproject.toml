@@ -1,16 +1,10 @@
 [build-system]
-requires = ["uv_build>=0.9.10,<0.10.0"]
+requires = ["uv_build>=0.9.13,<0.10.0"]
 build-backend = "uv_build"
 
-[[tool.uv.index]]
-name = "testpypi"
-url = "https://test.pypi.org/simple/"
-publish-url = "https://test.pypi.org/legacy/"
-explicit = true
-
 [project]
-name = "Tawala"
-version = "1.0.3.dev1"
+name = "christianwhocodes"
+version = "1.0.0.dev1"
 description = "My utility belt, just like Batman's utility belt but for code."
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -21,9 +15,15 @@ requires-python = ">=3.12"
 dependencies = ["pyperclip>=1.11.0", "rich>=14.2.0"]
 
 [project.scripts]
-tawala = "tawala.cli:main"
+christianwhocodes = "christianwhocodes:main"
 
 [project.urls]
-homepage = "https://github.com/christianwhocodes/tawala"
-repository = "https://github.com/christianwhocodes/tawala"
-issues = "https://github.com/christianwhocodes/tawala/issues"
+homepage = "https://github.com/christianwhocodes/dev#readme"
+repository = "https://github.com/christianwhocodes/dev"
+issues = "https://github.com/christianwhocodes/dev/issues"
+
+[[tool.uv.index]]
+name = "testpypi"
+url = "https://test.pypi.org/simple/"
+publish-url = "https://test.pypi.org/legacy/"
+explicit = true

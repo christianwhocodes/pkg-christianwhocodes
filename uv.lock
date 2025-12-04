@@ -3,6 +3,21 @@ revision = 3
 requires-python = ">=3.12"
 
 [[package]]
+name = "christianwhocodes"
+version = "1.0.0.dev1"
+source = { editable = "." }
+dependencies = [
+    { name = "pyperclip" },
+    { name = "rich" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "pyperclip", specifier = ">=1.11.0" },
+    { name = "rich", specifier = ">=14.2.0" },
+]
+
+[[package]]
 name = "markdown-it-py"
 version = "4.0.0"
 source = { registry = "https://pypi.org/simple" }
@@ -52,19 +67,4 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/fb/d2/8920e102050a0de7bfabeb4c4614a49248cf8d5d7a8d01885fbb24dc767a/rich-14.2.0.tar.gz", hash = "sha256:73ff50c7c0c1c77c8243079283f4edb376f0f6442433aecb8ce7e6d0b92d1fe4", size = 219990, upload-time = "2025-10-09T14:16:53.064Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/25/7a/b0178788f8dc6cafce37a212c99565fa1fe7872c70c6c9c1e1a372d9d88f/rich-14.2.0-py3-none-any.whl", hash = "sha256:76bc51fe2e57d2b1be1f96c524b890b816e334ab4c1e45888799bfaab0021edd", size = 243393, upload-time = "2025-10-09T14:16:51.245Z" },
-]
-
-[[package]]
-name = "tawala"
-version = "1.0.3.dev1"
-source = { editable = "." }
-dependencies = [
-    { name = "pyperclip" },
-    { name = "rich" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "pyperclip", specifier = ">=1.11.0" },
-    { name = "rich", specifier = ">=14.2.0" },
 ]

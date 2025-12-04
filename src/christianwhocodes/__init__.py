@@ -1,7 +1,7 @@
 from rich import print
 
 
-def main():
+def main() -> None:
     print(
         "...but the people who know their God shall be strong, and carry out great exploits. [purple]—[/] [bold green]Daniel[/] 11:32"
     )
