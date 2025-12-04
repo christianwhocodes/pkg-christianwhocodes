@@ -34,7 +34,7 @@ theme = Theme(
 console = Console(theme=theme)
 
 
-def colored_print(
+def print(
     text: str | list[tuple[str, str | None]],
     color: str | None = None,
     end: str = "\n",
@@ -75,19 +75,19 @@ def colored_print(
 # Example usage
 if __name__ == "__main__":
     # Single color examples
-    colored_print("This is an error message", Text.ERROR)
-    colored_print("This is a warning message", Text.WARNING)
-    colored_print("This is a success message", Text.SUCCESS)
-    colored_print("This is an info message", Text.INFO)
-    colored_print("This is a normal message")
+    print("This is an error message", Text.ERROR)
+    print("This is a warning message", Text.WARNING)
+    print("This is a success message", Text.SUCCESS)
+    print("This is an info message", Text.INFO)
+    print("This is a normal message")
 
     # Using end argument
-    colored_print("Loading", Text.INFO, end="")
-    colored_print("...", end="")
-    colored_print(" Done!", Text.SUCCESS)
+    print("Loading", Text.INFO, end="")
+    print("...", end="")
+    print(" Done!", Text.SUCCESS)
 
     # Multi-colored text in one line
-    colored_print(
+    print(
         [
             ("Error: ", Text.ERROR),
             ("File ", None),
@@ -96,7 +96,7 @@ if __name__ == "__main__":
         ]
     )
 
-    colored_print(
+    print(
         [
             ("Status: ", Text.INFO),
             ("OK", Text.SUCCESS),
