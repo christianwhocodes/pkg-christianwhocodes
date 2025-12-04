@@ -9,7 +9,7 @@ description = "My utility belt, just like Batman's utility belt but for code."
 readme = "README.md"
 license = { file = "LICENSE" }
 authors = [
-    { name = "christianwhocodes", email = "hey@christianwhocodes.space" },
+    { name = "Kevin Wasike Wakhisi", email = "hey@christianwhocodes.space" },
 ]
 requires-python = ">=3.12"
 dependencies = ["pyperclip>=1.11.0", "rich>=14.2.0"]
