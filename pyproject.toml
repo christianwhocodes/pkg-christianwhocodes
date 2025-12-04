@@ -14,13 +14,20 @@ authors = [
 requires-python = ">=3.12"
 dependencies = ["pyperclip>=1.11.0", "rich>=14.2.0"]
 
+[dependency-groups]
+dev = ["tawala"]
+
+
 [project.scripts]
-christianwhocodes = "christianwhocodes:main"
+christianwhocodes = "christianwhocodes.cli:main"
 
 [project.urls]
 homepage = "https://github.com/christianwhocodes/dev#readme"
 repository = "https://github.com/christianwhocodes/dev"
 issues = "https://github.com/christianwhocodes/dev/issues"
+
+[tool.uv.sources]
+tawala = { git = "https://github.com/tawalabora/tawala.git" }
 
 [[tool.uv.index]]
 name = "testpypi"
