@@ -38,7 +38,7 @@ class DirectoryNotFoundError(Exception):
         """Format the error message with directory information."""
         parts = [
             f"DirectoryError: {self.message}",
-            f"Expected Directory: {self.expected_dir}",
+            f"Expected Directory: {self.expected_dir}" if self.expected_dir else "",
             f"Current Directory: {self.current_dir}",
         ]
 
