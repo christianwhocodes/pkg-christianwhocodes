@@ -25,53 +25,52 @@ class DirectoryNotFoundError(Exception):
 
         # Default message if none provided
         if message is None:
-            message = (
-                "Not running in expected " + f"{self.expected_dir} "
-                if self.expected_dir
-                else "" + f"directory! Current directory: {self.current_dir}"
-            )
+            expected_part = f"{self.expected_dir} " if self.expected_dir else ""
+            message = f"Not running in expected {expected_part}directory! Current directory: {self.current_dir}"
 
         self.message = message
         super().__init__(self.message)
 
     def __str__(self) -> str:
         """Format the error message with directory information."""
-        parts = [
-            f"DirectoryError: {self.message}",
-            f"Expected Directory: {self.expected_dir}" if self.expected_dir else "",
-            f"Current Directory: {self.current_dir}",
-        ]
 
         if self.color:
-            try:
-                from io import StringIO
-                from sys import stdout
+            from io import StringIO
+            from sys import stdout
 
-                from .stdout import Text, print
+            from .stdout import Text, print
 
-                # Capture colored output to string
-                output = StringIO()
-                old_stdout = stdout
-                stdout = output
+            # Capture colored output to string
+            output = StringIO()
+            old_stdout = stdout
+            stdout = output
 
-                print([("DirectoryError: ", Text.ERROR), (self.message, None)])
+            print([("DirectoryError: ", Text.ERROR), (self.message, None)])
+
+            # Only print expected directory if provided
+            if self.expected_dir:
                 print(
                     [
                         ("Expected Directory: ", Text.INFO),
                         (str(self.expected_dir), Text.HIGHLIGHT),
                     ]
                 )
-                print(
-                    [
-                        ("Current Directory: ", Text.WARNING),
-                        (str(self.current_dir), Text.HIGHLIGHT),
-                    ]
-                )
 
-                stdout = old_stdout
-                return output.getvalue().rstrip()
-            except ImportError:
-                # Fall back to plain text if colors module not available
-                pass
+            print(
+                [
+                    ("Current Directory: ", Text.WARNING),
+                    (str(self.current_dir), Text.HIGHLIGHT),
+                ]
+            )
 
-        return "\n".join(parts)
+            stdout = old_stdout
+            return output.getvalue().rstrip()
+        else:
+            parts = [f"DirectoryError: {self.message}"]
+
+            # Only include expected directory if it was provided
+            if self.expected_dir:
+                parts.append(f"Expected Directory: {self.expected_dir}")
+
+            parts.append(f"Current Directory: {self.current_dir}")
+            return "\n".join(parts)
