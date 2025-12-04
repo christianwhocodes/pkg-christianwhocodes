@@ -4,7 +4,7 @@ build-backend = "uv_build"
 
 [project]
 name = "christianwhocodes"
-version = "1.1.0"
+version = "1.1.1"
 description = "My utility belt, just like Batman's utility belt but for code."
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -14,10 +14,6 @@ authors = [
 requires-python = ">=3.12"
 dependencies = ["pyperclip>=1.11.0", "rich>=14.2.0"]
 
-[dependency-groups]
-dev = ["tawala"]
-
-
 [project.scripts]
 christianwhocodes = "christianwhocodes.cli:main"
 
@@ -25,9 +21,6 @@ christianwhocodes = "christianwhocodes.cli:main"
 homepage = "https://github.com/christianwhocodes/dev#readme"
 repository = "https://github.com/christianwhocodes/dev"
 issues = "https://github.com/christianwhocodes/dev/issues"
-
-[tool.uv.sources]
-tawala = { git = "https://github.com/tawalabora/tawala.git" }
 
 [[tool.uv.index]]
 name = "testpypi"

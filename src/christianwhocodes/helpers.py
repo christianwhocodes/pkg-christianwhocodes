@@ -1,8 +1,27 @@
-from typing import Any, Callable, Iterable, Literal, Optional, Tuple, cast
+from enum import IntEnum
+from typing import Any, Callable, Iterable, Literal, cast
 
 
 def version_placeholder() -> Literal["X.Y.Z"]:
     return "X.Y.Z"
+
+
+def max_length_from_choices(choices: Iterable[tuple[str, Any]]) -> int:
+    """
+    Utility function to get the max_length for a tuple of choices
+
+    Args:
+        choices: A tuple of choices
+
+    Returns:
+        int: The length of the longest choice value.
+    """
+    return max(len(choice[0]) for choice in choices)
+
+
+class ExitCode(IntEnum):
+    SUCCESS = 0
+    ERROR = 1
 
 
 class TypeConverter:
@@ -22,7 +41,7 @@ class TypeConverter:
 
     @staticmethod
     def to_list_of_str(
-        value: Any, transform: Optional[Callable[[str], str]] = None
+        value: Any, transform: Callable[[str], str] | None = None
     ) -> list[str]:
         """
         Convert a value to a list of strings, with optional transformation.
@@ -47,16 +66,3 @@ class TypeConverter:
             result = [transform(item) for item in result]
 
         return result
-
-
-def max_length_from_choices(choices: Iterable[Tuple[str, Any]]) -> int:
-    """
-    Utility function to get the max_length for a tuple of choices
-
-    Args:
-        choices: A tuple of choices
-
-    Returns:
-        int: The length of the longest choice value.
-    """
-    return max(len(choice[0]) for choice in choices)
