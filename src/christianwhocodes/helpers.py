@@ -10,13 +10,39 @@ from pyperclip import copy
 from .stdout import Text, print
 
 
-def version_placeholder() -> Literal["X.Y.Z"]:
-    """Return a version placeholder string.
+# ======================================================================
+# VERSION UTILITIES
+# ======================================================================
 
-    Returns:
-        Literal["X.Y.Z"]: The literal placeholder version string.
-    """
-    return "X.Y.Z"
+
+class Version:
+    """Utility class for version-related operations."""
+
+    @staticmethod
+    def placeholder() -> Literal["X.Y.Z"]:
+        """Return a version placeholder string.
+
+        Returns:
+            Literal["X.Y.Z"]: The literal placeholder version string.
+        """
+        return "X.Y.Z"
+
+    @staticmethod
+    def get(package: str) -> str:
+        """Get the package version.
+
+        Args:
+            package: Name of the package to get version for.
+
+        Returns:
+            str: The package version or error message with placeholder.
+        """
+        try:
+            from importlib.metadata import version
+
+            return version(package)
+        except Exception as e:
+            return f"{Version.placeholder()}: Could not determine version\n{str(e)}"
 
 
 # ======================================================================
@@ -159,8 +185,11 @@ def generate_random_string(
 
     # Copy to clipboard unless disabled
     if not no_clipboard:
-        copy(random_str)
-        print("Copied to clipboard!", Text.SUCCESS)
+        try:
+            copy(random_str)
+            print("Copied to clipboard!", Text.SUCCESS)
+        except Exception as e:
+            print(f"Could not copy to clipboard: {e}", Text.WARNING)
 
     return random_str
 
