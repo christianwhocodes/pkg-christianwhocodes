@@ -13,7 +13,7 @@ def version_placeholder() -> Literal["X.Y.Z"]:
     """
     return "X.Y.Z"
 
-
+# ?: Is this necessary?
 def pyproject_name(toml_path: Path) -> str:
     """Read the project name from a pyproject.toml file.
 
@@ -62,19 +62,20 @@ class ExitCode(IntEnum):
     Follows Unix convention where 0 indicates success and non-zero indicates failure.
 
     Example:
-        >>> sys.exit(ExitCode.SUCCESS)  # Exit with code 0
+        >>> from sys import exit
 
-        >>> sys.exit(ExitCode.ERROR)    # Exit with code 1
+        >>> from christianwhocodes.helpers import ExitCode
 
-        >>> def main():
+        >>> def main() -> ExitCode:
         ...     try:
         ...         # Do some work
-        ...         return ExitCode.SUCCESS
         ...     except Exception:
-        ...         return ExitCode.ERROR
+        ...         return ExitCode.ERROR    # Exit with code 1
+        ...     else:
+        ...         return ExitCode.SUCCESS  # Exit with code 0
 
         >>> if __name__ == "__main__":
-        ...     sys.exit(main())
+        ...     exit(main())
     """
 
     SUCCESS = 0
