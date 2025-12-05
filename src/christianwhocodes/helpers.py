@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from enum import IntEnum
 from pathlib import Path
-from tomllib import load as load_toml
+from tomllib import load
 from typing import Any, Callable, Iterable, Literal, cast
 
 
@@ -52,7 +52,7 @@ class PyProject:
         self._toml_path = toml_path
 
         with open(toml_path, "rb") as f:
-            full_data = load_toml(f)
+            full_data = load(f)
 
         if "project" not in full_data:
             raise KeyError(f"[project] section not found in {toml_path}")
@@ -114,54 +114,6 @@ class PyProject:
     def path(self) -> Path:
         """Return the pyproject.toml file path."""
         return self._toml_path
-
-
-class PyProjectSection:
-    """Represents an arbitrary section inside a pyproject.toml file.
-
-    Allows loading nested dot-notation sections such as:
-
-        PyProjectSection("tool.tawala", path)
-
-    Example:
-        >>> sec = PyProjectSection("tool.poetry", Path("pyproject.toml"))
-        >>> sec.data
-        {'name': 'mypkg', 'dependencies': {...}}
-
-    Args:
-        section (str): Dot-separated section path.
-        toml_path (Path): Path to the pyproject.toml file.
-    """
-
-    def __init__(self, section: str, toml_path: Path) -> None:
-        self._section = section
-        self._toml_path = toml_path
-
-        with open(toml_path, "rb") as f:
-            data = load_toml(f)
-
-        current = data
-        for key in section.split("."):
-            if not isinstance(current, dict) or key not in current:
-                raise KeyError(f"Section '{section}' not found in {toml_path}")
-            current = current[key]
-
-        self._data: dict[str, Any] = current
-
-    @property
-    def section(self) -> str:
-        """Return the dot-path of this section."""
-        return self._section
-
-    @property
-    def path(self) -> Path:
-        """Return the file path."""
-        return self._toml_path
-
-    @property
-    def data(self) -> dict[str, Any]:
-        """Return the section data."""
-        return self._data
 
 
 # ======================================================================
