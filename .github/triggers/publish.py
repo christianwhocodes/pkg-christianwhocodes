@@ -10,8 +10,6 @@ This script:
 Run with --dry or --dry-run to preview the git commands without executing them.
 """
 
-from __future__ import annotations
-
 from argparse import ArgumentParser, Namespace, RawDescriptionHelpFormatter
 from pathlib import Path
 from subprocess import CalledProcessError, run
@@ -28,34 +26,69 @@ class GitPublisher:
     """Encapsulate git tagging and pushing"""
 
     def __init__(self, pyproject: PyProject) -> None:
-        self.pyproject = pyproject
+        self.project = pyproject
 
+    # ---------------------------------------------------------
+    #   REPO URL EXTRACTION (FIXED)
+    # ---------------------------------------------------------
     def _get_repo_url(self) -> str:
-        """Return repository URL from pyproject.toml (raises KeyError if missing)."""
-        urls = self.pyproject.data.get("project", {}).get("urls", {})
+        """
+        Return repository URL from pyproject.toml (raises KeyError if missing).
+
+        Supports:
+        - https://github.com/user/repo
+        - https://github.com/user/repo.git
+        - git@github.com:user/repo.git
+        """
+        urls = self.project.data.get("project", {}).get("urls", {})
         url = urls.get("repository")
+
         if not url:
             raise KeyError("No repository URL found in project.urls")
+
         return url
 
-    def _sanitize_repo_path(self, url: str) -> str:
-        """Strip trailing slashes and `.git` suffix."""
-        path = url.rstrip("/")
-        if path.endswith(".git"):
-            path = path[:-4]
-        return path
+    def _normalize_repo_url(self, raw: str) -> str:
+        """
+        Normalize Git remote URL into a uniform `https://github.com/user/repo`
+        format so we can build an Actions URL.
+
+        Handles:
+        - git@github.com:user/repo.git
+        - https://github.com/user/repo
+        - https://github.com/user/repo.git
+        """
+
+        raw = raw.strip()
+
+        # SSH-style: git@github.com:user/repo.git
+        if raw.startswith("git@github.com:"):
+            repo = raw.replace("git@github.com:", "")
+            repo = repo.removesuffix(".git")
+            return f"https://github.com/{repo}"
+
+        parsed = urlparse(raw)
+
+        # HTTPS URL but may have trailing .git or /
+        if "github.com" in parsed.netloc:
+            path = parsed.path.rstrip("/").removesuffix(".git")
+            return f"https://github.com{path}"
+
+        raise ValueError("Repository URL is not a GitHub URL")
 
     def build_actions_url(self) -> str:
-        """Convert repo URL into GitHub Actions page URL; raises ValueError if not GitHub."""
+        """
+        Build the GitHub Actions URL:
+
+          https://github.com/user/repo/actions
+        """
         repo_url = self._get_repo_url()
-        sanitized = self._sanitize_repo_path(repo_url)
-        parsed = urlparse(sanitized)
+        norm = self._normalize_repo_url(repo_url)
+        return f"{norm}/actions"
 
-        if "github.com" not in parsed.netloc:
-            raise ValueError("Repository URL is not a GitHub URL")
-
-        return f"https://{parsed.netloc}{parsed.path}/actions"
-
+    # ---------------------------------------------------------
+    #   GIT OPERATIONS
+    # ---------------------------------------------------------
     def tag(self, version: str, dry: bool) -> str:
         """Create git tag and return tag string (e.g. 'v1.2.3')."""
         tag = f"v{version}"
@@ -77,6 +110,9 @@ class GitPublisher:
             run(cmd, check=True, capture_output=True, text=True)
 
 
+# =========================================================
+#   MAIN FLOW
+# =========================================================
 def tag_and_push(dry_run: bool = False) -> ExitCode:
     if dry_run:
         print("DRY RUN MODE - no changes will be made\n", Text.INFO)
@@ -95,16 +131,11 @@ def tag_and_push(dry_run: bool = False) -> ExitCode:
         pub.push(dry_run)
 
     except FileNotFoundError as e:
-        # e.filename can be None; guard for that
         filename = getattr(e, "filename", None)
-        if filename:
-            print(f"File not found: {filename}", Text.ERROR)
-        else:
-            print("File not found", Text.ERROR)
+        print(f"File not found: {filename or ''}".strip(), Text.ERROR)
         return ExitCode.ERROR
 
     except CalledProcessError as e:
-        # e.cmd may be list[str] or None; format defensively
         cmd = " ".join(map(str, e.cmd)) if e.cmd else "<cmd>"
         print(f"Command failed: {cmd}", Text.ERROR)
         print(f"Return code: {e.returncode}", Text.ERROR)
