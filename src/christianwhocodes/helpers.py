@@ -27,21 +27,24 @@ class Version:
         return "X.Y.Z"
 
     @staticmethod
-    def get(package: str) -> str:
+    def get(package: str) -> tuple[str, str]:
         """Get the package version.
 
         Args:
             package: Name of the package to get version for.
 
         Returns:
-            str: The package version or error message with placeholder.
+            tuple[str, str]: The package version or placeholder (if exception), and emtpy string or error message (if excpetion).
         """
         try:
             from importlib.metadata import version
 
-            return version(package)
+            return version(package), ""
         except Exception as e:
-            return f"{Version.placeholder()}: Could not determine version\n{str(e)}"
+            return (
+                Version.placeholder(),
+                f"Could not determine version\n{str(e)}",
+            )
 
 
 # ======================================================================

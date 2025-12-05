@@ -19,7 +19,7 @@ def create_parser() -> ArgumentParser:
         "-v",
         "--version",
         action="version",
-        version=Version.get("christianwhocodes"),
+        version=Version.get("christianwhocodes")[0],
         help="Show program version",
     )
 
