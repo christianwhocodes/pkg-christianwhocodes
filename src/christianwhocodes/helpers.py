@@ -1,8 +1,7 @@
 from enum import IntEnum
 from pathlib import Path
+from tomllib import load as load_toml
 from typing import Any, Callable, Iterable, Literal, cast
-
-import tomllib
 
 
 def version_placeholder() -> Literal["X.Y.Z"]:
@@ -13,28 +12,118 @@ def version_placeholder() -> Literal["X.Y.Z"]:
     """
     return "X.Y.Z"
 
-# ?: Is this necessary?
-def pyproject_name(toml_path: Path) -> str:
-    """Read the project name from a pyproject.toml file.
+
+class PyProject:
+    """Parser for pyproject.toml files.
+
+    Provides convenient access to common fields in a pyproject.toml file,
+    such as project name, version, description, and other metadata.
 
     Args:
         toml_path: Path to the pyproject.toml file.
 
-    Returns:
-        str: The project name from the [project] section's name field.
-
     Raises:
         FileNotFoundError: If the specified toml file does not exist.
-        KeyError: If the name field is missing from the [project] section.
         tomllib.TOMLDecodeError: If the file is not valid TOML format.
 
     Example:
         >>> from pathlib import Path
-        >>> name = pyproject_name(Path("pyproject.toml"))
+        >>> pyproject = PyProject(Path("pyproject.toml"))
+        >>> pyproject.name
+        'my-package'
+        >>> pyproject.version
+        '1.0.0'
     """
-    with open(toml_path, "rb") as f:
-        data = tomllib.load(f)
-    return data["project"]["name"]
+
+    def __init__(self, toml_path: Path) -> None:
+        """Initialize the PyProject instance by reading the toml file.
+
+        Args:
+            toml_path: Path to the pyproject.toml file.
+        """
+        self._toml_path = toml_path
+        with open(toml_path, "rb") as f:
+            self._data = load_toml(f)
+
+    @property
+    def name(self) -> str:
+        """Get the project name.
+
+        Returns:
+            str: The project name from the [project] section.
+
+        Raises:
+            KeyError: If the name field is missing.
+        """
+        return self._data["project"]["name"]
+
+    @property
+    def version(self) -> str:
+        """Get the project version.
+
+        Returns:
+            str: The project version from the [project] section.
+
+        Raises:
+            KeyError: If the version field is missing.
+        """
+        return self._data["project"]["version"]
+
+    @property
+    def description(self) -> str | None:
+        """Get the project description.
+
+        Returns:
+            str | None: The project description, or None if not specified.
+        """
+        return self._data.get("project", {}).get("description")
+
+    @property
+    def authors(self) -> list[dict[str, str]]:
+        """Get the list of project authors.
+
+        Returns:
+            list[dict[str, str]]: List of author dictionaries with 'name' and
+                optionally 'email' keys. Returns empty list if not specified.
+        """
+        return self._data.get("project", {}).get("authors", [])
+
+    @property
+    def dependencies(self) -> list[str]:
+        """Get the project dependencies.
+
+        Returns:
+            list[str]: List of dependency specifications. Returns empty list
+                if not specified.
+        """
+        return self._data.get("project", {}).get("dependencies", [])
+
+    @property
+    def python_requires(self) -> str | None:
+        """Get the Python version requirement.
+
+        Returns:
+            str | None: The Python version requirement string, or None if not specified.
+        """
+        return self._data.get("project", {}).get("requires-python")
+
+    @property
+    def data(self) -> dict[str, Any]:
+        """Get the raw parsed TOML data.
+
+        Returns:
+            dict[str, Any]: The complete parsed pyproject.toml data.
+        """
+        return self._data
+
+    @property
+    def path(self) -> Path:
+        """Get the path to the pyproject.toml file.
+
+        Returns:
+            Path: The path to the pyproject.toml file.
+        """
+        return self._toml_path
 
 
 def max_length_from_choices(choices: Iterable[tuple[str, Any]]) -> int:

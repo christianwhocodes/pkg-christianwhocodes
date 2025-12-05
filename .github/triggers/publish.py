@@ -2,7 +2,7 @@
 
 This script:
 - Reads repository metadata from pyproject.toml to build the Actions URL.
-- Obtains the current version via the `uv` CLI (`uv version --short`).
+- Obtains the current version from pyproject.toml.
 - Creates an annotated git tag named "v{version}" and pushes tags to origin,
     which triggers the workflow defined in .github/workflows/publish.yaml
     (configured to run on push tags and workflow_dispatch).
@@ -14,80 +14,47 @@ from __future__ import annotations
 
 from argparse import ArgumentParser, Namespace, RawDescriptionHelpFormatter
 from pathlib import Path
-from subprocess import CalledProcessError, CompletedProcess, run
+from subprocess import CalledProcessError, run
 from sys import exit
-from tomllib import TOMLDecodeError, load
-from typing import Any, NoReturn, Optional
+from tomllib import TOMLDecodeError
+from typing import NoReturn
 from urllib.parse import urlparse
 
-from christianwhocodes.helpers import ExitCode
+from christianwhocodes.helpers import ExitCode, PyProject
 from christianwhocodes.stdout import Text, print
 
 
-class ProjectConfig:
-    """Read and cache project metadata from pyproject.toml"""
+class GitPublisher:
+    """Encapsulate git tagging and pushing"""
 
-    pyproject_path: Path
-    _config: Optional[dict[str, Any]]
+    def __init__(self, pyproject: PyProject) -> None:
+        self.pyproject = pyproject
 
-    def __init__(self, pyproject_path: Path) -> None:
-        self.pyproject_path = pyproject_path
-        self._config = None
-
-    @classmethod
-    def from_base_dir(cls) -> "ProjectConfig":
-        """Factory constructor using the project root directory"""
-        base = Path(__file__).resolve().parent.parent.parent
-        return cls(base / "pyproject.toml")
-
-    @property
-    def repo_url(self) -> str:
-        """Return repository URL from TOML (raises ValueError if missing)."""
-        if self._config is None:
-            with open(self.pyproject_path, "rb") as f:
-                self._config = load(f)
-
-        urls = self._config.get("project", {}).get("urls", {})
+    def _get_repo_url(self) -> str:
+        """Return repository URL from pyproject.toml (raises KeyError if missing)."""
+        urls = self.pyproject.data.get("project", {}).get("urls", {})
         url = urls.get("repository")
         if not url:
-            raise ValueError("No repository URL found in project.urls")
+            raise KeyError("No repository URL found in project.urls")
         return url
 
-    def sanitize_repo_path(self) -> str:
+    def _sanitize_repo_path(self, url: str) -> str:
         """Strip trailing slashes and `.git` suffix."""
-        path = self.repo_url.rstrip("/")
+        path = url.rstrip("/")
         if path.endswith(".git"):
             path = path[:-4]
         return path
 
     def build_actions_url(self) -> str:
         """Convert repo URL into GitHub Actions page URL; raises ValueError if not GitHub."""
-        parsed = urlparse(self.sanitize_repo_path())
+        repo_url = self._get_repo_url()
+        sanitized = self._sanitize_repo_path(repo_url)
+        parsed = urlparse(sanitized)
+
         if "github.com" not in parsed.netloc:
             raise ValueError("Repository URL is not a GitHub URL")
+
         return f"https://{parsed.netloc}{parsed.path}/actions"
-
-    def fetch_version(self) -> str:
-        """Get version from `uv` CLI. Raises CalledProcessError or ValueError."""
-        result: CompletedProcess[str] = run(
-            ["uv", "version", "--short"],
-            check=True,
-            capture_output=True,
-            text=True,
-        )
-        version = result.stdout.strip()
-        if not version:
-            raise ValueError("Version output was empty")
-        return version
-
-
-class GitPublisher:
-    """Encapsulate git tagging and pushing"""
-
-    config: ProjectConfig
-
-    def __init__(self, config: ProjectConfig) -> None:
-        self.config = config
 
     def tag(self, version: str, dry: bool) -> str:
         """Create git tag and return tag string (e.g. 'v1.2.3')."""
@@ -115,11 +82,15 @@ def tag_and_push(dry_run: bool = False) -> ExitCode:
         print("DRY RUN MODE - no changes will be made\n", Text.INFO)
 
     try:
-        cfg = ProjectConfig.from_base_dir()
-        version = cfg.fetch_version()
-        actions_url = cfg.build_actions_url()
+        pyproject = PyProject(
+            Path(__file__).resolve().parent.parent.parent / "pyproject.toml"
+        )
 
-        pub = GitPublisher(cfg)
+        version = pyproject.version
+
+        pub = GitPublisher(pyproject)
+        actions_url = pub.build_actions_url()
+
         tag = pub.tag(version, dry_run)
         pub.push(dry_run)
 
@@ -147,7 +118,7 @@ def tag_and_push(dry_run: bool = False) -> ExitCode:
         print(f"Failed to parse pyproject.toml: {str(e)}", Text.ERROR)
         return ExitCode.ERROR
 
-    except ValueError as e:
+    except (KeyError, ValueError) as e:
         print(f"Configuration error: {str(e)}", Text.ERROR)
         return ExitCode.ERROR
 
@@ -161,9 +132,7 @@ def tag_and_push(dry_run: bool = False) -> ExitCode:
             print("GitHub Actions workflow would trigger.", Text.SUCCESS)
         else:
             print(f"Tag {tag} pushed successfully!", Text.SUCCESS)
-            print(
-                [("Monitor workflow: ", Text.INFO), (actions_url, Text.HIGHLIGHT)]
-            )
+            print([("Monitor workflow: ", Text.INFO), (actions_url, Text.HIGHLIGHT)])
 
         return ExitCode.SUCCESS
 
