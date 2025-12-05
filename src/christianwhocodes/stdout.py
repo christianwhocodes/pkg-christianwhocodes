@@ -51,9 +51,9 @@ def print(
         end: String appended after the text (default: newline)
 
     Examples:
-        colored_print("Error!", Theme.ERROR)
-        colored_print("Status: ", Theme.INFO, end="")
-        colored_print([("Error: ", Theme.ERROR), ("File not found", Theme.WARNING)])
+        print("Error!", Theme.ERROR)
+        print("Status: ", Theme.INFO, end="")
+        print([("Error: ", Theme.ERROR), ("File not found", Theme.WARNING)])
     """
     if isinstance(text, list):
         # Multi-colored mode: text is a list of (text, color) tuples
