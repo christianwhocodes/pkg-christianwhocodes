@@ -1,8 +1,3 @@
-"""
-Color definitions using the rich library.
-Usage: Import these colors and use them with rich's print or Console.
-"""
-
 from enum import StrEnum
 
 from rich.console import Console

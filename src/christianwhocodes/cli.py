@@ -1,8 +1,8 @@
+from argparse import ArgumentParser
 from sys import exit
 from typing import NoReturn
-from argparse import ArgumentParser
 
-from .helpers import ExitCode, generate_random_string, Version
+from .helpers import ExitCode, Version, generate_random_string
 from .stdout import print
 
 
