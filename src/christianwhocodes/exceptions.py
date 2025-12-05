@@ -76,7 +76,7 @@ class DirectoryNotFoundError(Exception):
             return "\n".join(parts)
 
 
-class ProjectIdentifierNotFound(Exception):
+class ProjectIdentifierNotFoundError(Exception):
     """
     Exception raised when a project identifier is not found or doesn't match expectations.
 
