@@ -1,9 +1,13 @@
-from __future__ import annotations
-
+import secrets
+import string
 from enum import IntEnum
 from pathlib import Path
 from tomllib import load
 from typing import Any, Callable, Iterable, Literal, cast
+
+from pyperclip import copy
+
+from .stdout import Text, print
 
 
 def version_placeholder() -> Literal["X.Y.Z"]:
@@ -119,6 +123,46 @@ class PyProject:
 # ======================================================================
 # UTILITY FUNCTIONS
 # ======================================================================
+
+
+def generate_random_string(
+    length: int = 32,
+    no_clipboard: bool = False,
+    charset: str = string.ascii_letters + string.digits,
+) -> str:
+    """Generate a cryptographically secure random string and copy it to clipboard.
+
+    Args:
+        length: Length of the random string (default: 32).
+        no_clipboard: If True, skip copying to clipboard (default: False).
+        charset: Character set to use (default: alphanumeric).
+
+    Returns:
+        str: The generated random string.
+
+    Example:
+        >>> random_str = generate_random_string(16)
+        Generated: aB3dEf7gHi9jKl2m
+        Copied to clipboard!
+        >>> random_str = generate_random_string(16, no_clipboard=True)
+        Generated: nO5pQr8sT1uVw4xY
+    """
+
+    random_str = "".join(secrets.choice(charset) for _ in range(length))
+
+    print(
+        [
+            ("Generated: ", Text.INFO),
+            (random_str, Text.HIGHLIGHT),
+        ]
+    )
+
+    # Copy to clipboard unless disabled
+    if not no_clipboard:
+        copy(random_str)
+        print("Copied to clipboard!", Text.SUCCESS)
+
+    return random_str
 
 
 def max_length_from_choices(choices: Iterable[tuple[str, Any]]) -> int:
