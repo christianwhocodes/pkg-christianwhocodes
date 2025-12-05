@@ -45,7 +45,7 @@ class DirectoryNotFoundError(Exception):
             old_stdout = stdout
             stdout = output
 
-            print([("DirectoryError: ", Text.ERROR), (self.message, None)])
+            print([("Directory Error: ", Text.ERROR), (self.message, None)])
 
             # Only print expected directory if provided
             if self.expected_dir:
@@ -66,7 +66,7 @@ class DirectoryNotFoundError(Exception):
             stdout = old_stdout
             return output.getvalue().rstrip()
         else:
-            parts = [f"DirectoryError: {self.message}"]
+            parts = [f"Directory Error: {self.message}"]
 
             # Only include expected directory if it was provided
             if self.expected_dir:
@@ -76,13 +76,13 @@ class DirectoryNotFoundError(Exception):
             return "\n".join(parts)
 
 
-class ProjectIdentifierNotFoundError(Exception):
+class IdentifierNotFoundError(Exception):
     """
-    Exception raised when a project identifier is not found or doesn't match expectations.
+    Exception raised when an identifier is not found or doesn't match expectations.
 
     Attributes:
         message: Custom error message (optional, has default)
-        expected_identifier: The expected project identifier (optional)
+        expected_identifier: The expected identifier (optional)
         color: Whether to use colored output (requires colors module, defaults to True)
     """
 
@@ -100,13 +100,13 @@ class ProjectIdentifierNotFoundError(Exception):
             expected_part = (
                 f"{self.expected_identifier} " if self.expected_identifier else ""
             )
-            message = f"Project identifier {expected_part}not found!"
+            message = f"Identifier {expected_part}not found!"
 
         self.message = message
         super().__init__(self.message)
 
     def __str__(self) -> str:
-        """Format the error message with project identifier information."""
+        """Format the error message with identifier information."""
 
         if self.color:
             from io import StringIO
@@ -119,7 +119,7 @@ class ProjectIdentifierNotFoundError(Exception):
             old_stdout = stdout
             stdout = output
 
-            print([("ProjectIdentifierError: ", Text.ERROR), (self.message, None)])
+            print([("Identifier Error: ", Text.ERROR), (self.message, None)])
 
             # Only print expected identifier if provided
             if self.expected_identifier:
@@ -133,7 +133,7 @@ class ProjectIdentifierNotFoundError(Exception):
             stdout = old_stdout
             return output.getvalue().rstrip()
         else:
-            parts = [f"ProjectIdentifierError: {self.message}"]
+            parts = [f"Identifier Error: {self.message}"]
 
             # Only include expected identifier if it was provided
             if self.expected_identifier:
