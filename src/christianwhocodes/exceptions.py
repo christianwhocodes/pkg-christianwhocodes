@@ -74,3 +74,69 @@ class DirectoryNotFoundError(Exception):
 
             parts.append(f"Current Directory: {self.current_dir}")
             return "\n".join(parts)
+
+
+class ProjectIdentifierNotFound(Exception):
+    """
+    Exception raised when a project identifier is not found or doesn't match expectations.
+
+    Attributes:
+        message: Custom error message (optional, has default)
+        expected_identifier: The expected project identifier (optional)
+        color: Whether to use colored output (requires colors module, defaults to True)
+    """
+
+    def __init__(
+        self,
+        message: str | None = None,
+        expected_identifier: str | None = None,
+        color: bool = True,
+    ):
+        self.expected_identifier = expected_identifier
+        self.color = color
+
+        # Default message if none provided
+        if message is None:
+            expected_part = (
+                f"{self.expected_identifier} " if self.expected_identifier else ""
+            )
+            message = f"Project identifier {expected_part}not found!"
+
+        self.message = message
+        super().__init__(self.message)
+
+    def __str__(self) -> str:
+        """Format the error message with project identifier information."""
+
+        if self.color:
+            from io import StringIO
+            from sys import stdout
+
+            from .stdout import Text, print
+
+            # Capture colored output to string
+            output = StringIO()
+            old_stdout = stdout
+            stdout = output
+
+            print([("ProjectIdentifierError: ", Text.ERROR), (self.message, None)])
+
+            # Only print expected identifier if provided
+            if self.expected_identifier:
+                print(
+                    [
+                        ("Expected Identifier: ", Text.INFO),
+                        (str(self.expected_identifier), Text.HIGHLIGHT),
+                    ]
+                )
+
+            stdout = old_stdout
+            return output.getvalue().rstrip()
+        else:
+            parts = [f"ProjectIdentifierError: {self.message}"]
+
+            # Only include expected identifier if it was provided
+            if self.expected_identifier:
+                parts.append(f"Expected Identifier: {self.expected_identifier}")
+
+            return "\n".join(parts)
