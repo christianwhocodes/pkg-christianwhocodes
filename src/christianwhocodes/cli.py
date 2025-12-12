@@ -2,6 +2,7 @@ from argparse import ArgumentParser
 from sys import exit
 from typing import NoReturn
 
+from .generators.file import PgPassFileGenerator, PgServiceFileGenerator
 from .helpers import ExitCode, Version, generate_random_string
 from .stdout import print
 
@@ -43,6 +44,24 @@ def create_parser() -> ArgumentParser:
         help="Length of the random string (default: 16)",
     )
 
+    # File generator subcommand
+    generate_parser = subparsers.add_parser(
+        "generate",
+        help="Generate configuration files (pgpass, pg_service)",
+    )
+    generate_parser.add_argument(
+        "-f",
+        "--file",
+        choices=["pgpass", "pg_service"],
+        required=True,
+        help="Which file to generate",
+    )
+    generate_parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Force overwrite without confirmation",
+    )
+
     return parser
 
 
@@ -55,6 +74,16 @@ def main() -> NoReturn:
     match args.command:
         case "random" | "generaterandom" | "randomstring":
             generate_random_string(length=args.length, no_clipboard=args.no_clipboard)
+
+        case "generate":
+            match args.file:
+                case "pgpass":
+                    PgPassFileGenerator().create(force=args.force)
+                case "pg_service":
+                    PgServiceFileGenerator().create(force=args.force)
+                case _:
+                    print(f"Unknown file option: {args.file}")
+
         case _:
             print(
                 "...but the people who know their God shall be strong, and carry out great exploits. [purple]—[/] [bold green]Daniel[/] 11:32"

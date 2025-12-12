@@ -214,7 +214,7 @@ def max_length_from_choices(choices: Iterable[tuple[str, Any]]) -> int:
 
 
 class ExitCode(IntEnum):
-    """Standard exit codes.
+    """Standard exit codes IntEnums.
 
     SUCCESS = 0
     ERROR = 1
