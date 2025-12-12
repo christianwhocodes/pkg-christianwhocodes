@@ -2,13 +2,25 @@ from argparse import ArgumentParser
 from sys import exit
 from typing import NoReturn
 
-from .generators.file import PgPassFileGenerator, PgServiceFileGenerator
+from .generators.file import (
+    PgPassFileGenerator,
+    PgServiceFileGenerator,
+    SSHConfigFileGenerator,
+)
 from .helpers import ExitCode, Version, generate_random_string
 from .stdout import print
 
 
 def create_parser() -> ArgumentParser:
-    """Create and configure the argument parser."""
+    """Create and configure the argument parser.
+
+    Sets up the CLI with subcommands:
+    - random: Generate random strings
+    - generate: Create configuration files (pgpass, pg_service, ssh_config)
+
+    Returns:
+        ArgumentParser: Configured argument parser with all subcommands.
+    """
     parser = ArgumentParser(
         prog="christianwhocodes",
         description="Christian Who Codes CLI Tool",
@@ -52,7 +64,7 @@ def create_parser() -> ArgumentParser:
     generate_parser.add_argument(
         "-f",
         "--file",
-        choices=["pgpass", "pg_service"],
+        choices=["pgpass", "pg_service", "ssh_config"],
         required=True,
         help="Which file to generate",
     )
@@ -66,7 +78,11 @@ def create_parser() -> ArgumentParser:
 
 
 def main() -> NoReturn:
-    """Main entry point for the CLI."""
+    """Main entry point for the CLI.
+
+    Parses command-line arguments and dispatches to appropriate handlers.
+    Exits with appropriate exit code after execution.
+    """
     parser = create_parser()
     args = parser.parse_args()
 
@@ -81,6 +97,8 @@ def main() -> NoReturn:
                     PgPassFileGenerator().create(force=args.force)
                 case "pg_service":
                     PgServiceFileGenerator().create(force=args.force)
+                case "ssh_config":
+                    SSHConfigFileGenerator().create(force=args.force)
                 case _:
                     print(f"Unknown file option: {args.file}")
 

@@ -5,7 +5,16 @@ from rich.theme import Theme
 
 
 class Text(StrEnum):
-    """Rich color codes for use in styled output."""
+    """Rich color codes for use in styled output.
+
+    Attributes:
+        ERROR: Bold red styling for error messages.
+        WARNING: Bold yellow styling for warning messages.
+        SUCCESS: Bold green styling for success messages.
+        INFO: Bold cyan styling for informational messages.
+        DEBUG: Bold magenta styling for debug messages.
+        HIGHLIGHT: Bold blue styling for highlighted text.
+    """
 
     ERROR = "error"
     WARNING = "warning"
