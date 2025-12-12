@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from enum import StrEnum
 from os import environ
 from pathlib import Path
 from platform import system
@@ -74,6 +75,20 @@ class FileGenerator(ABC):
         # Write data provided by subclass
         self.file_path.write_text(self.data)
         print(f"File written to {self.file_path}", Text.SUCCESS)
+
+
+class FileGeneratorOption(StrEnum):
+    """Available file generator options for configuration files.
+
+    Attributes:
+        PG_SERVICE: PostgreSQL service configuration file (.pg_service.conf).
+        PGPASS: PostgreSQL password file (pgpass.conf or .pgpass).
+        SSH_CONFIG: SSH configuration file (~/.ssh/config).
+    """
+
+    PG_SERVICE = "pg_service"
+    PGPASS = "pgpass"
+    SSH_CONFIG = "ssh_config"
 
 
 class PgServiceFileGenerator(FileGenerator):

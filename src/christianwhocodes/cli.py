@@ -1,8 +1,10 @@
 from argparse import ArgumentParser
 from sys import exit
-from typing import NoReturn
+from typing import NoReturn, Type
 
 from .generators.file import (
+    FileGenerator,
+    FileGeneratorOption,
     PgPassFileGenerator,
     PgServiceFileGenerator,
     SSHConfigFileGenerator,
@@ -59,14 +61,15 @@ def create_parser() -> ArgumentParser:
     # File generator subcommand
     generate_parser = subparsers.add_parser(
         "generate",
-        help="Generate configuration files (pgpass, pg_service)",
+        help=f"Generate configuration files ({', '.join(o.value for o in FileGeneratorOption)})",
     )
     generate_parser.add_argument(
         "-f",
         "--file",
-        choices=["pgpass", "pg_service", "ssh_config"],
+        choices=[opt.value for opt in FileGeneratorOption],
         required=True,
-        help="Which file to generate",
+        type=FileGeneratorOption,
+        help=f"Which file to generate (options: {', '.join(o.value for o in FileGeneratorOption)}).",
     )
     generate_parser.add_argument(
         "--force",
@@ -92,15 +95,15 @@ def main() -> NoReturn:
             generate_random_string(length=args.length, no_clipboard=args.no_clipboard)
 
         case "generate":
-            match args.file:
-                case "pgpass":
-                    PgPassFileGenerator().create(force=args.force)
-                case "pg_service":
-                    PgServiceFileGenerator().create(force=args.force)
-                case "ssh_config":
-                    SSHConfigFileGenerator().create(force=args.force)
-                case _:
-                    print(f"Unknown file option: {args.file}")
+            generators: dict[FileGeneratorOption, Type[FileGenerator]] = {
+                FileGeneratorOption.PG_SERVICE: PgServiceFileGenerator,
+                FileGeneratorOption.PGPASS: PgPassFileGenerator,
+                FileGeneratorOption.SSH_CONFIG: SSHConfigFileGenerator,
+            }
+
+            generator_class: Type[FileGenerator] = generators[args.file]
+            generator: FileGenerator = generator_class()
+            generator.create(force=args.force)
 
         case _:
             print(
