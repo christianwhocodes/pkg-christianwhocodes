@@ -24,7 +24,7 @@ class Text(StrEnum):
     HIGHLIGHT = "highlight"
 
 
-theme = Theme(
+THEME = Theme(
     {
         Text.ERROR: "bold red",
         Text.WARNING: "bold yellow",
@@ -35,7 +35,7 @@ theme = Theme(
     }
 )
 
-console = Console(theme=theme)
+console = Console(theme=THEME)
 
 
 def print(
