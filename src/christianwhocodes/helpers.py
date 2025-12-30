@@ -4,7 +4,7 @@ from enum import IntEnum
 from pathlib import Path
 from tomllib import load
 from typing import Any, Callable, Iterable, Literal, cast
-
+import os
 from pyperclip import copy
 
 from .stdout import Text, print
@@ -269,3 +269,49 @@ class TypeConverter:
             result = [transform(item) for item in result]
 
         return result
+
+    @staticmethod
+    def to_path(value: str | Path, resolve: bool = True) -> Path:
+        """Convert a string or Path to a properly expanded and resolved Path.
+
+        This method intelligently handles:
+        - User home directory expansion (~)
+        - Environment variable expansion ($VAR, ${VAR})
+        - Absolute path resolution
+        - Relative path resolution (optional)
+
+        Args:
+            value: String path or Path object to convert.
+            resolve: If True, resolve to absolute path (default: True).
+
+        Returns:
+            Path: Processed Path object.
+
+        Examples:
+            >>> TypeConverter.to_path("~/documents/file.txt")
+            PosixPath('/home/user/documents/file.txt')
+            >>> TypeConverter.to_path("$HOME/file.txt")
+            PosixPath('/home/user/file.txt')
+            >>> TypeConverter.to_path("./relative/path", resolve=False)
+            PosixPath('relative/path')
+        """
+        # Convert to Path if string
+        if isinstance(value, str):
+            path = Path(value)
+        else:
+            path = value
+
+        # Expand user home directory (~)
+        if "~" in str(path):
+            path = path.expanduser()
+
+        # Expand environment variables
+        path_str = str(path)
+        if "$" in path_str:
+            path = Path(os.path.expandvars(path_str))
+
+        # Resolve to absolute path if requested
+        if resolve:
+            path = path.resolve()
+
+        return path
