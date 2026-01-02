@@ -1,10 +1,10 @@
 [build-system]
-requires = ["uv_build>=0.9.18,<0.10.0"]
+requires = ["uv_build>=0.9.21,<0.10.0"]
 build-backend = "uv_build"
 
 [project]
 name = "christianwhocodes"
-version = "1.2.3"
+version = "1.2.4"
 description = "Dev utility belt, just like Batman's utility belt but for code."
 readme = "README.md"
 license = { file = "LICENSE" }

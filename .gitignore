@@ -4,5 +4,8 @@ __pycache__/
 # Virtual environment
 /.venv/
 
+# Ruff cache
+/.ruff_cache/
+
 # Temporary files
 /.tmp/

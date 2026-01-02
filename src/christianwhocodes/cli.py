@@ -2,15 +2,17 @@ from argparse import ArgumentParser
 from sys import exit
 from typing import NoReturn, Type
 
-from .generators.file import (
+from christianwhocodes.generators.file import (
     FileGenerator,
     FileGeneratorOption,
     PgPassFileGenerator,
     PgServiceFileGenerator,
     SSHConfigFileGenerator,
 )
-from .helpers import ExitCode, Version, generate_random_string
-from .stdout import print
+from christianwhocodes.helpers.enums import ExitCode
+from christianwhocodes.helpers.stdout import print
+from christianwhocodes.helpers.utils import generate_random_string
+from christianwhocodes.helpers.version import Version
 
 
 def create_parser() -> ArgumentParser:
